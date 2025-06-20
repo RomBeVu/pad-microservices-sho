@@ -118,7 +118,12 @@ Create `.env` files for each service with necessary configurations (DB URI, JWT 
 ### 3. Start All Services
 
 ```bash
-docker-compose up --build
+# In a separate terminal, start observability stack (Tempo, kafka, etc.)
+docker-compose -f kafka-docker-compose.yml up --build -d
+
+# Start core services (backend, frontend, etc.)
+docker-compose -f docker-compose.yml up --build -d
+
 ```
 
 ### 4. Access
@@ -141,22 +146,6 @@ docker-compose up --build
   * `@opentelemetry/instrumentation-*`
   * Exports configured to send spans to OTEL Collector with Tempo exporter.
 * Tempo visualization available via Grafana dashboard.
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature-name`)
-3. Commit your changes (`git commit -am 'Add feature'`)
-4. Push to the branch (`git push origin feature-name`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is open-source and available under the [MIT License](LICENSE).
 
 ---
 
