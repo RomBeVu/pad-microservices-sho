@@ -1,0 +1,159 @@
+networks:
+  shared-network:
+    external: true
+
+services:
+
+  # MongoDB (shared for all services or can separate per service)
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - shared-network
+    volumes:
+      - mongo-data:/data/db
+
+  # Redis
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - shared-network
+
+  # Auth Service
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "4001:4001"
+    environment:
+      - PORT=4001
+      - MONGO_URI=mongodb://mongo:27017/shoppingcart
+      - JWT_SECRET=supersecretjwtkey
+      - REDIS_URL=redis://redis:6379
+      - SERVICE_NAME=auth-service
+      - SERVICE_NAMESPACE=shopping-cart
+      - DEPLOYMENT_ENVIRONMENT=local
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - shared-network
+    restart: on-failure
+
+  # User Service
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "4002:4002"
+    environment:
+      - PORT=4002
+      - MONGO_URI=mongodb://mongo:27017/shoppingcart
+      - JWT_SECRET=supersecretjwtkey
+      - REDIS_URL=redis://redis:6379
+      - SERVICE_NAME=user-service
+      - SERVICE_NAMESPACE=shopping-cart
+      - DEPLOYMENT_ENVIRONMENT=local
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - shared-network
+    restart: on-failure
+
+  # Product Service
+  product-service:
+    build: ./product-service
+    container_name: product-service
+    ports:
+      - "4003:4003"
+    environment:
+      - PORT=4003
+      - MONGO_URI=mongodb://mongo:27017/shoppingcart
+      - JWT_SECRET=supersecretjwtkey
+      - REDIS_URL=redis://redis:6379
+      - SERVICE_NAME=product-service
+      - SERVICE_NAMESPACE=shopping-cart
+      - DEPLOYMENT_ENVIRONMENT=local
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - shared-network
+    restart: on-failure
+
+  # Cart Service
+  cart-service:
+    build: ./cart-service
+    container_name: cart-service
+    ports:
+      - "4004:4004"
+    environment:
+      - PORT=4004
+      - MONGO_URI=mongodb://mongo:27017/shoppingcart
+      - JWT_SECRET=supersecretjwtkey
+      - REDIS_URL=redis://redis:6379
+      - SERVICE_NAME=cart-service
+      - SERVICE_NAMESPACE=shopping-cart
+      - DEPLOYMENT_ENVIRONMENT=local
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - shared-network
+    restart: on-failure
+
+  # Order Service
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    ports:
+      - "4005:4005"
+    environment:
+      - PORT=4005
+      - MONGO_URI=mongodb://mongo:27017/shoppingcart
+      - JWT_SECRET=supersecretjwtkey
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKER=kafka:9092
+      - SERVICE_NAME=order-service
+      - SERVICE_NAMESPACE=shopping-cart
+      - DEPLOYMENT_ENVIRONMENT=local
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - shared-network
+    restart: on-failure
+
+  # frontend:
+  #   build: ./frontend
+  #   container_name: react-frontend
+  #   ports:
+  #     - "3000:80"
+  #   environment:
+  #     #- REACT_APP_API_URL=http://localhost:4000
+  #     - AUTH_SERVICE_URL=http://localhost:4001
+  #     - USER_SERVICE_URL=http://localhost:4002
+  #     - PRODUCT_SERVICE_URL=http://localhost:4003
+  #     - CART_SERVICE_URL=http://localhost:4004
+  #     - ORDER_SERVICE_URL=http://localhost:4005
+  #   depends_on:
+  #     #- api-gateway
+  #     - auth-service
+  #     - user-service
+  #     - product-service
+  #     - cart-service
+  #     - order-service
+
+volumes:
+  mongo-data:
