@@ -1,6 +1,6 @@
 networks:
   shared-network:
-    name: shared-network
+    external: true
 
 services:
 
@@ -46,7 +46,7 @@ services:
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092

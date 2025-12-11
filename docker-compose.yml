@@ -135,25 +135,27 @@ services:
       - shared-network
     restart: on-failure
 
-  # frontend:
-  #   build: ./frontend
-  #   container_name: react-frontend
-  #   ports:
-  #     - "3000:80"
-  #   environment:
-  #     #- REACT_APP_API_URL=http://localhost:4000
-  #     - AUTH_SERVICE_URL=http://localhost:4001
-  #     - USER_SERVICE_URL=http://localhost:4002
-  #     - PRODUCT_SERVICE_URL=http://localhost:4003
-  #     - CART_SERVICE_URL=http://localhost:4004
-  #     - ORDER_SERVICE_URL=http://localhost:4005
-  #   depends_on:
-  #     #- api-gateway
-  #     - auth-service
-  #     - user-service
-  #     - product-service
-  #     - cart-service
-  #     - order-service
+  frontend:
+    build: ./frontend
+    container_name: react-frontend
+    ports:
+      - "3000:80"
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:4001
+      - USER_SERVICE_URL=http://user-service:4002
+      - PRODUCT_SERVICE_URL=http://product-service:4003
+      - CART_SERVICE_URL=http://cart-service:4004
+      - ORDER_SERVICE_URL=http://order-service:4005
+    depends_on:
+      - auth-service
+      - user-service
+      - product-service
+      - cart-service
+      - order-service
+    networks:
+      - shared-network
+
+
 
 volumes:
   mongo-data:
